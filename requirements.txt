@@ -1,0 +1,19 @@
+# 本教材的第 1~12 章「完全不需要」這裡的任何套件,純標準函式庫即可。
+# 這個檔案是給第 13、14 章(Jupyter 與圖表)以及想用 pytest 的人用的。
+#
+# 安裝:
+#   python3 -m venv .venv && source .venv/bin/activate    # macOS / Linux
+#   py -3 -m venv .venv && .venv\Scripts\activate         # Windows
+#   pip install -r requirements.txt
+
+# --- 執行 Notebook ---
+jupyterlab>=4.0
+notebook>=7.0
+ipykernel>=6.29
+
+# --- 測試(第 7 章起,選配;沒裝也有替代方案) ---
+pytest>=8.0
+
+# --- 資料處理與繪圖(第 13、14 章) ---
+pandas>=2.0
+matplotlib>=3.8

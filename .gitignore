@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# 教材執行時產生的暫存資料
+notebooks/工作區/
+examples/輸出/
+
+# 作業系統
+.DS_Store
+Thumbs.db
