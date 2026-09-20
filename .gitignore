@@ -12,6 +12,7 @@ venv/
 # 教材執行時產生的暫存資料
 notebooks/工作區/
 examples/輸出/
+examples/資料/
 
 # 作業系統
 .DS_Store

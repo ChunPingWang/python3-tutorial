@@ -177,15 +177,49 @@ py -3 examples\hello.py            # Windows
 
 ---
 
+## 這份教材自己也有測試
+
+教材最糟的情況是「書上的程式貼上去跑不動」。所以：
+
+| 素材 | 怎麼驗證 |
+| --- | --- |
+| 15 本 notebook | `tools/build_notebooks.py --check` 用 nbclient **實際執行每一格** |
+| `examples/` 專案 | 75 個測試 + 29 個 doctest，`pytest` 與免安裝的 `run_tests.py` 都能跑 |
+| 跨平台主張 | GitHub Actions 在 **Windows / macOS / Linux × Python 3.10 / 3.12** 上跑一遍 |
+
+```bash
+# 在本機驗證整份教材
+python3 tools/build_notebooks.py --check     # 產生並執行所有 notebook
+cd examples && python3 run_tests.py --doctest
+```
+
+### Notebook 的來源是 `.py`
+
+`notebooks/*.ipynb` 是由 `notebooks/src/*.py`（percent 格式）產生的，
+產生出來的 notebook **不含執行輸出**，所以 git diff 乾淨、衝突少。
+
+```bash
+python3 tools/build_notebooks.py             # 只產生
+python3 tools/build_notebooks.py --check     # 產生並實際執行驗證
+```
+
+改教材請改 `notebooks/src/*.py`，不要直接改 `.ipynb`。
+
+---
+
 ## 給教學者
 
 - 每章的 notebook 都可以單獨發給學生，彼此不相依（需要前面章節的成果時會在第一格重新定義）。
-- 練習題的測試都寫在 notebook 裡，學生按下執行就知道對不對，不需要你逐份批改。
-- `tools/build_notebooks.py --check` 會實際執行所有 notebook，改教材後跑一次就知道有沒有寫壞。
+- 練習題的測試都寫在 notebook 裡，學生按下執行就知道對不對，**不需要你逐份批改**。
+- notebook 不含輸出，學生拿到的是乾淨的版本，必須自己執行才看得到結果。
+- 每章結構固定（情境 → 土法煉鋼 → 先寫測試 → 解法 → 深入 → 常見錯誤 → 速記 → 練習），
+  可以直接對應一堂課。
+- 建議節奏：第 0~7 章各一堂（TDD 那章可拆兩堂），第 8~13 章各一堂，第 14 章當期末專案。
 
 ---
 
 ## 版本
 
 - 撰寫依據：Python **3.12**（3.10 以上皆可；文中用到 3.10+ 語法處會標示）
-- 最後驗證：2026-09
+- 最後驗證：2026-09，macOS 14 / Python 3.12.7
+- 授權：教材內容與範例程式可自由用於教學

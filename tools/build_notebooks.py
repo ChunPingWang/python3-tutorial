@@ -67,11 +67,16 @@ def build(src: Path) -> Path:
         "name": "python3",
     }
     nb.metadata["language_info"] = {"name": "python"}
-    for cell_type, source in parse_cells(src.read_text(encoding="utf-8")):
+    for index, (cell_type, source) in enumerate(parse_cells(src.read_text(encoding="utf-8"))):
         if cell_type == "markdown":
-            nb.cells.append(nbformat.v4.new_markdown_cell(source))
+            cell = nbformat.v4.new_markdown_cell(source)
         else:
-            nb.cells.append(nbformat.v4.new_code_cell(source))
+            cell = nbformat.v4.new_code_cell(source)
+        # nbformat 預設給每個 cell 一個隨機 id,那會讓每次重建的檔案都不一樣,
+        # git diff 因此充滿雜訊。改成依順序的固定 id,同樣的來源就產生同樣的檔案。
+        cell["id"] = f"c{index:03d}"
+        nb.cells.append(cell)
+
     out = OUT_DIR / (src.stem + ".ipynb")
     nbformat.write(nb, out)
     return out
