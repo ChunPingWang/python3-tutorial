@@ -97,7 +97,11 @@ def build(src: Path) -> Path:
         nb.cells.append(cell)
 
     out = OUT_DIR / (src.stem + ".ipynb")
-    nbformat.write(nb, out)
+
+    # ⚠️ 不用 nbformat.write():它以文字模式開檔,在 🪟 Windows 上會把 \n 寫成 \r\n,
+    # 於是同一份來源在不同作業系統產生的檔案會不一樣,git 就認為檔案被改過。
+    # 這正是第 9 章講的換行差異 —— 明確指定 newline="\n" 就三平台一致了。
+    out.write_text(nbformat.writes(nb) + "\n", encoding="utf-8", newline="\n")
     return out
 
 

@@ -217,9 +217,15 @@ Windows 的**標準輸出**預設不是 UTF-8（可能是 cp950 或 cp1252），
 所以 `print` 一個中文字串就會炸掉。**你的程式邏輯完全沒問題，是輸出管道的編碼問題。**
 
 > 🔍 **這是真實發生過的事故。**
-> 這份教材的 CI 第一次在 Windows 上跑的時候，`examples` 和 `notebooks` 兩個 job
-> 全部死在這裡 —— 而 macOS 和 Linux 六個 job 全綠。
+> 這份教材第一次在 Windows 上驗證時，`examples/run_tests.py` 和
+> `tools/build_notebooks.py` 全部死在這裡 —— 而 macOS 和 Linux 上完全正常。
 > **這就是為什麼「在我電腦上可以跑」不能算數。**
+>
+> 想在 macOS / Linux 上模擬這個情境，不必真的找一台 Windows：
+>
+> ```bash
+> PYTHONIOENCODING=cp1252 python3 你的程式.py
+> ```
 
 ✅ **解法一：程式自己處理（推薦，使用者什麼都不用做）**
 
@@ -262,9 +268,27 @@ chcp 65001
 
 ### 🪟 git 說檔案被改了，但我什麼都沒改
 
+**這是同一起事故的第二幕**，原因有兩個，兩個都要修：
+
+**原因一：程式寫檔時產生了 CRLF**
+
+Python 的文字模式在 Windows 上會把 `\n` 自動換成 `\r\n`。
+所以同一份來源，在 Mac 上產生 LF、在 Windows 上產生 CRLF，git 就認為檔案不一樣。
+
+```python
+# ✖ 在 Windows 上會寫出 CRLF
+路徑.write_text(內容, encoding="utf-8")
+
+# ✔ 明確指定，三平台一致
+路徑.write_text(內容, encoding="utf-8", newline="\n")
+```
+
+⚠️ 很多函式庫的 `write()` 都有這個問題（`nbformat.write` 就是），
+遇到時自己用 `writes()` 拿到字串再自己寫檔。
+
+**原因二：git 的 autocrlf**
+
 Windows 的 git 預設 `core.autocrlf=true`：checkout 時把 LF 換成 CRLF。
-只要有工具**重新產生**檔案（例如 `tools/build_notebooks.py` 產生 `.ipynb`），
-產生的是 LF、工作區是 CRLF，git 就認為檔案變了 —— 明明內容一模一樣。
 
 ✅ **解法：專案根目錄放一個 `.gitattributes`**
 

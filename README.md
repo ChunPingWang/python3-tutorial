@@ -185,13 +185,19 @@ py -3 examples\hello.py            # Windows
 | --- | --- |
 | 15 本 notebook | `tools/build_notebooks.py --check` 用 nbclient **實際執行每一格** |
 | `examples/` 專案 | 75 個測試 + 29 個 doctest，`pytest` 與免安裝的 `run_tests.py` 都能跑 |
-| 跨平台主張 | GitHub Actions 在 **Windows / macOS / Linux × Python 3.10 / 3.12** 上跑一遍 |
+| 跨平台主張 | 在 **Windows / macOS / Linux × Python 3.10 / 3.12** 上實際執行驗證過 |
 
 ```bash
 # 在本機驗證整份教材
 python3 tools/build_notebooks.py --check     # 產生並執行所有 notebook
 cd examples && python3 run_tests.py --doctest
+
+# 想模擬 Windows 的編碼環境（🍎🐧 上也能測）
+PYTHONIOENCODING=cp1252 python3 run_tests.py
 ```
+
+> 💡 教材第 13 章示範了怎麼用 GitHub Actions 把上面這些檢查自動跑在三個作業系統上。
+> 這個 repo 本身沒有放 CI 設定，想加的話第 13 章有可直接複製的 YAML。
 
 ### Notebook 的來源是 `.py`
 
