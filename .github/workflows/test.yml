@@ -9,6 +9,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  # 🪟 Windows 的標準輸出預設不是 UTF-8,印中文會 UnicodeEncodeError。
+  # 程式本身已經用 sys.stdout.reconfigure() 自保,這裡再加一層保險。
+  PYTHONUTF8: "1"
+  PYTHONIOENCODING: "utf-8"
+
 jobs:
   # 範例專案的測試 —— 三個作業系統 × 兩個 Python 版本
   examples:

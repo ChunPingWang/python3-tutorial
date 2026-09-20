@@ -27,6 +27,17 @@ from drinkshop.report import daily_report, monthly_summary, text_bar_chart
 from drinkshop.storage import load_month, save_orders
 
 
+def use_utf8_stdout() -> None:
+    """讓 CLI 在 Windows 主控台也能印中文(見附錄 C)。
+
+    🪟 Windows 的標準輸出預設不是 UTF-8,直接 print 中文會 UnicodeEncodeError。
+    只在「做輸出的這一層」處理,其他模組完全不需要知道這件事。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
 def make_demo_orders(on: date, count: int = 12, seed: int = 20260920) -> list[Order]:
     """產生示範訂單。
 
@@ -117,6 +128,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     """進入點。argv 是參數而不是直接讀 sys.argv —— 這樣才測得動。"""
+    use_utf8_stdout()
     args = build_parser().parse_args(argv)
     return args.func(args)
 

@@ -22,6 +22,25 @@ from pathlib import Path
 
 import nbformat
 
+
+def use_utf8_stdout() -> None:
+    """讓這支程式在 Windows 主控台也能印中文。
+
+    🪟 Windows 的標準輸出預設不是 UTF-8(可能是 cp950 或 cp1252),
+    直接 print 中文會得到:
+
+        UnicodeEncodeError: 'charmap' codec can't encode characters...
+
+    這不是你的程式邏輯有問題,是「輸出管道」的編碼問題。
+    Python 3.7+ 可以直接把 stdout 重新設定成 UTF-8。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+use_utf8_stdout()
+
 ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = ROOT / "notebooks" / "src"
 OUT_DIR = ROOT / "notebooks"

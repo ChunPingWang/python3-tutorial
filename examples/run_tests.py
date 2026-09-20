@@ -25,6 +25,24 @@ import sys
 import traceback
 from pathlib import Path
 
+
+def use_utf8_stdout() -> None:
+    """讓這支程式在 Windows 主控台也能印中文(見附錄 C)。
+
+    🪟 Windows 的標準輸出預設不是 UTF-8,直接 print 中文會得到
+
+        UnicodeEncodeError: 'charmap' codec can't encode characters...
+
+    這不是程式邏輯有問題,是「輸出管道」的編碼問題。
+    這個專案的 CI 第一次在 Windows 上跑的時候,就是死在這裡。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+use_utf8_stdout()
+
 ROOT = Path(__file__).resolve().parent
 TESTS_DIR = ROOT / "tests"
 

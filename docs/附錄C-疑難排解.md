@@ -202,14 +202,77 @@ with open(路徑, "w", encoding="utf-8", newline="") as f:      # ✅
 json.dump(物件, f, ensure_ascii=False, indent=2)      # ✅
 ```
 
-### 終端機印中文變 `?` 或亂碼（🪟）
+### 🪟 `UnicodeEncodeError: 'charmap' codec can't encode characters`
 
-```powershell
-chcp 65001                      # 切到 UTF-8 代碼頁
-$env:PYTHONUTF8 = "1"           # 讓 Python 強制用 UTF-8
+**注意這個和前面幾個不一樣：它不是「讀檔」出問題，是 `print` 出問題。**
+
+```
+  File "run_tests.py", line 90, in main
+    print("  drinkshop 測試套件（不需要 pytest）")
+  File "...\encodings\cp1252.py", line 19, in encode
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 12-19
 ```
 
-或直接用 Windows Terminal / VS Code 的終端機（預設就支援）。
+Windows 的**標準輸出**預設不是 UTF-8（可能是 cp950 或 cp1252），
+所以 `print` 一個中文字串就會炸掉。**你的程式邏輯完全沒問題，是輸出管道的編碼問題。**
+
+> 🔍 **這是真實發生過的事故。**
+> 這份教材的 CI 第一次在 Windows 上跑的時候，`examples` 和 `notebooks` 兩個 job
+> 全部死在這裡 —— 而 macOS 和 Linux 六個 job 全綠。
+> **這就是為什麼「在我電腦上可以跑」不能算數。**
+
+✅ **解法一：程式自己處理（推薦，使用者什麼都不用做）**
+
+```python
+import sys
+
+def use_utf8_stdout() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):          # Python 3.7+
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+use_utf8_stdout()
+```
+
+放在**做輸出的那一層**（CLI 的 `main()`、工具腳本的開頭）就好，
+其他模組完全不需要知道這件事 —— 又是一次「把副作用推到邊界」。
+
+實際例子見 `examples/drinkshop/cli.py` 和 `examples/run_tests.py`。
+
+✅ **解法二：環境變數（CI 裡最方便）**
+
+```powershell
+$env:PYTHONUTF8 = "1"           # 讓 Python 全面使用 UTF-8
+$env:PYTHONIOENCODING = "utf-8"
+```
+
+```yaml
+# GitHub Actions
+env:
+  PYTHONUTF8: "1"
+```
+
+✅ **解法三：切換主控台代碼頁**
+
+```powershell
+chcp 65001
+```
+
+或直接用 Windows Terminal / VS Code 的終端機（預設就支援 UTF-8）。
+
+### 🪟 git 說檔案被改了，但我什麼都沒改
+
+Windows 的 git 預設 `core.autocrlf=true`：checkout 時把 LF 換成 CRLF。
+只要有工具**重新產生**檔案（例如 `tools/build_notebooks.py` 產生 `.ipynb`），
+產生的是 LF、工作區是 CRLF，git 就認為檔案變了 —— 明明內容一模一樣。
+
+✅ **解法：專案根目錄放一個 `.gitattributes`**
+
+```
+* text=auto eol=lf
+```
+
+這是第 9 章的換行差異在版本控制層面的版本，一行設定解決。
 
 ---
 

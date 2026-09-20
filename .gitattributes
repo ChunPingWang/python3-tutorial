@@ -1,0 +1,19 @@
+# 換行符號統一用 LF。
+#
+# 為什麼需要這個檔案?
+#
+# 🪟 Windows 的 git 預設會開啟 core.autocrlf=true:checkout 時把 LF 轉成 CRLF、
+# commit 時再轉回來。平常沒事,但只要有工具「重新產生檔案」(例如我們的
+# tools/build_notebooks.py 產生 .ipynb),產生出來的是 LF,而工作區裡是 CRLF,
+# git 就會認為檔案被改過 —— 明明內容一模一樣。
+#
+# 這正是第 9 章講的跨平台換行差異,在版本控制層面的版本。
+# 一行設定就能讓三個作業系統看到完全相同的檔案。
+
+* text=auto eol=lf
+
+# 這些是二進位檔,不要做任何轉換
+*.png binary
+*.jpg binary
+*.pdf binary
+*.woff2 binary
