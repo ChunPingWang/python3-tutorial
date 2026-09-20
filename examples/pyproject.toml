@@ -1,0 +1,26 @@
+[project]
+name = "drinkshop"
+version = "1.0.0"
+description = "阿宏手搖飲營運工具 —— Python 3 教材的綜合範例專案"
+requires-python = ">=3.10"
+dependencies = []          # 核心功能只用標準函式庫,一個第三方套件都不需要
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+charts = ["matplotlib>=3.8"]
+
+[project.scripts]
+drinkshop = "drinkshop.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["drinkshop"]
+
+[tool.pytest.ini_options]
+# 同時收集 tests/ 的測試,以及 drinkshop/ 裡 docstring 中的範例
+testpaths = ["tests", "drinkshop"]
+# --doctest-modules 讓 docstring 裡的 >>> 範例也變成測試,文件永遠不會過期
+addopts = "-v --doctest-modules"
